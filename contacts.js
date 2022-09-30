@@ -5,10 +5,19 @@ const fs = require("fs").promises;
 
 const contactsPath = path.resolve("db", "contacts.json");
 
-const listContacts = async () => {
+const getContacts = async () => {
   try {
     const data = await fs.readFile(contactsPath, "utf-8");
-    console.table(JSON.parse(data));
+    const parseData = JSON.parse(data);
+    return parseData;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const listContacts = async () => {
+  try {
+    console.table(await getContacts());
   } catch (error) {
     console.log(error);
   }
@@ -16,8 +25,7 @@ const listContacts = async () => {
 
 const getContactById = async (contactId) => {
   try {
-    const textData = await fs.readFile(contactsPath, "utf-8");
-    const parseData = JSON.parse(textData);
+    const parseData = await getContacts();
     const contact = parseData.filter((el) => el.id === contactId);
     console.table(contact);
   } catch (error) {
@@ -27,8 +35,7 @@ const getContactById = async (contactId) => {
 
 const removeContact = async (contactId) => {
   try {
-    const textData = await fs.readFile(contactsPath, "utf-8");
-    const parseData = JSON.parse(textData);
+    const parseData = await getContacts();
     const contacts = parseData.filter((el) => el.id !== contactId);
     await fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
     console.table(contacts);
@@ -39,11 +46,10 @@ const removeContact = async (contactId) => {
 
 const addContact = async (name, email, phone) => {
   try {
-    const textData = await fs.readFile(contactsPath, "utf-8");
-    const parseData = JSON.parse(textData);
+    const parseData = await getContacts();
     parseData.push({ id: uuid.v1(), name, email, phone });
     await fs.writeFile(contactsPath, JSON.stringify(parseData, null, 2));
-    console.table(parseData)
+    console.table(parseData);
   } catch (error) {
     console.log(error);
   }
